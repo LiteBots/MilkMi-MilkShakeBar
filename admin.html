@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>MilkMi Admin Panel</title>
+  
+  <meta name="theme-color" content="#FF6600">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+  <style>
+    /* --- CORE STYLES (Imported from Client App) --- */
+    :root {
+      --primary: #FF6600;
+      --primary-glow: rgba(255, 102, 0, 0.3);
+      --bg-body: #F2F4F6;
+      --bg-surface: #FFFFFF;
+      --text-main: #111827;
+      --text-sub: #6B7280;
+      --border: #E5E7EB;
+      --glass-bg: rgba(255, 255, 255, 0.90); /* Slightly less transparent for admin */
+      --glass-border: rgba(255, 255, 255, 0.5);
+      --radius-l: 24px;
+      --radius-m: 16px;
+      --nav-height: 85px;
+      --safe-top: env(safe-area-inset-top, 20px);
+
+      /* Admin specific colors */
+      --status-pending: #FFB020;
+      --status-ok: #10B981;
+      --status-danger: #EF4444;
+    }
+
+    body.dark-mode {
+      --bg-body: #0F0F0F;
+      --bg-surface: #1C1C1E;
+      --text-main: #FFFFFF;
+      --text-sub: #9CA3AF;
+      --border: #2D2D30;
+      --glass-bg: rgba(28, 28, 30, 0.90);
+      --glass-border: rgba(255, 255, 255, 0.1);
+      --primary-glow: rgba(255, 102, 0, 0.5);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--text-main); background-color: var(--bg-body);
+      overflow-x: hidden; padding-bottom: calc(var(--nav-height) + 30px); padding-top: var(--safe-top);
+      transition: background 0.3s, color 0.3s;
+    }
+
+    /* --- LAYOUT & HEADER --- */
+    .app-container { max-width: 600px; margin: 0 auto; min-height: 100vh; position: relative; } /* Slightly wider for admin panel */
+
+    .app-header {
+      padding: 15px 24px; display: flex; justify-content: space-between; align-items: center;
+      position: sticky; top: 0; z-index: 90; background: var(--bg-body); margin-top: 10px;
+    }
+    .brand { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px; }
+    .brand span { color: var(--primary); }
+    .admin-badge { background: var(--primary); color: white; padding: 4px 8px; border-radius: 6px; font-size: 0.7rem; vertical-align: middle; margin-left: 10px;}
+
+    .icon-btn {
+      width: 40px; height: 40px; border-radius: 50%; background: var(--bg-surface); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center; color: var(--text-main); font-size: 1rem; cursor: pointer; transition: 0.2s;
+    }
+    .icon-btn:active { transform: scale(0.9); }
+
+    /* --- UTILS & COMPONENTS --- */
+    .section-title { font-size: 1.1rem; font-weight: 700; margin: 24px 0 12px; padding: 0 24px; }
+    .card { background: var(--bg-surface); border-radius: var(--radius-l); padding: 20px; margin: 0 24px 16px; border: 1px solid var(--border); }
+    
+    .btn-main { width: 100%; padding: 14px; border-radius: var(--radius-m); background: var(--primary); color: white; border: none; font-weight: 700; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;}
+    .btn-outline { width: 100%; padding: 14px; border-radius: var(--radius-m); background: transparent; color: var(--text-main); border: 1px solid var(--border); font-weight: 600; cursor: pointer; }
+    .btn-small { padding: 8px 16px; font-size: 0.85rem; width: auto; }
+    .btn-danger { background: var(--status-danger); }
+    .btn-success { background: var(--status-ok); }
+
+    .form-control {
+      width: 100%; padding: 14px; background: var(--bg-surface); 
+      border: 1px solid var(--border); border-radius: var(--radius-m); 
+      color: var(--text-main); font-family: inherit; font-size: 0.9rem; margin-bottom: 10px;
+    }
+
+    /* --- ADMIN SPECIFIC VIEWS --- */
+    .view-section { display: none; animation: fadeIn 0.3s ease; }
+    .view-section.active { display: block; }
+
+    /* Dashboard Stats */
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 0 24px; }
+    .stat-card { background: var(--bg-surface); padding: 20px; border-radius: var(--radius-m); border: 1px solid var(--border); }
+    .stat-value { font-size: 1.8rem; font-weight: 800; color: var(--primary); }
+    .stat-label { font-size: 0.85rem; color: var(--text-sub); font-weight: 600; }
+
+    /* Admin List Items (Orders/Reservations/Users) */
+    .admin-list-item {
+        background: var(--bg-surface); border: 1px solid var(--border);
+        padding: 16px; border-radius: var(--radius-m); margin: 0 24px 12px;
+        display: flex; flex-direction: column; gap: 12px;
+    }
+    .item-header { display: flex; justify-content: space-between; align-items: center; }
+    .item-id { font-weight: 800; font-family: monospace; letter-spacing: 1px; }
+    .item-status { font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 20px; text-transform: uppercase;}
+    
+    .status-pending { background: rgba(255, 176, 32, 0.15); color: var(--status-pending); }
+    .status-ok { background: rgba(16, 185, 129, 0.15); color: var(--status-ok); }
+    .status-danger { background: rgba(239, 68, 68, 0.15); color: var(--status-danger); }
+
+    .item-details { font-size: 0.9rem; color: var(--text-sub); line-height: 1.4; }
+    .item-details strong { color: var(--text-main); }
+    .item-actions { display: flex; gap: 10px; margin-top: 5px; }
+
+    /* Tabs for Orders */
+    .tabs-container { padding: 0 24px; margin-bottom: 20px; display: flex; gap: 10px; }
+    .tab-btn { flex: 1; padding: 12px; text-align: center; background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-m); font-weight: 700; color: var(--text-sub); cursor: pointer; transition: 0.2s; }
+    .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+    /* CRM User List */
+    .user-list-item { display: flex; align-items: center; justify-content: space-between; padding: 12px; border-bottom: 1px solid var(--border); cursor: pointer;}
+    .user-info-box { display: flex; align-items: center; gap: 12px; }
+    .user-avatar-small { width: 40px; height: 40px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+
+    /* --- BOTTOM NAV (Adapted for Admin) --- */
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+      width: 100%; max-width: 600px; height: calc(var(--nav-height) + env(safe-area-inset-bottom, 0px));
+      background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid var(--glass-border);
+      display: flex; justify-content: space-around; align-items: center; /* Changed space-between to space-around */
+      padding: 0 10px calc(10px + env(safe-area-inset-bottom, 0px)) 20px; z-index: 1000;
+      border-radius: 24px 24px 0 0;
+    }
+    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 5px; color: var(--text-sub); text-decoration: none; font-size: 0.65rem; font-weight: 600; flex: 1; transition: color 0.2s; }
+    .nav-item.active { color: var(--primary); }
+    .nav-item i { font-size: 1.4rem; transition: transform 0.2s; }
+    .nav-item.active i { transform: translateY(-3px); }
+
+    /* --- MODALS --- */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px);
+      z-index: 2000; opacity: 0; pointer-events: none; display: flex; align-items: flex-end; transition: opacity 0.3s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: auto; }
+    .modal-sheet {
+      width: 100%; max-width: 600px; margin: 0 auto; background: var(--bg-surface);
+      border-radius: 30px 30px 0 0; padding: 30px 24px calc(40px + env(safe-area-inset-bottom, 0px));
+      transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+      max-height: 85vh; overflow-y: auto;
+    }
+    .modal-overlay.open .modal-sheet { transform: translateY(0); }
+
+    /* --- ANIMATIONS & TOAST --- */
+    @keyframes fadeIn { from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
+    .toast {
+      position: fixed; top: calc(20px + var(--safe-top)); left: 50%; transform: translateX(-50%) translateY(-150px);
+      background: var(--bg-surface); color: var(--text-main); padding: 12px 20px; border-radius: 50px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 10px;
+      z-index: 3000; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      font-weight: 600; font-size: 0.9rem; border: 1px solid var(--border);
+    }
+    .toast.visible { transform: translateX(-50%) translateY(0); }
+
+    /* Admin Action Controls */
+    .action-controls { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
+    .control-btn { width: 40px; height: 40px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-body); font-size: 1.2rem; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    .control-value { font-size: 1.5rem; font-weight: 800; flex: 1; text-align: center; }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+
+  <header class="app-header">
+    <div class="brand">MilkMi <span class="admin-badge">ADMIN</span></div>
+    <button class="icon-btn" onclick="toggleTheme()"><i class="fas fa-moon"></i></button>
+  </header>
+
+  <section id="view-dashboard" class="view-section active">
+    <div style="padding: 10px 24px 20px;">
+      <h2 style="font-size: 1.8rem; line-height: 1.2;">Witaj, Admin! <br><span style="color:var(--text-sub); font-size: 1.1rem; font-weight:500;">Dzisiejsze statystyki:</span></h2>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value" id="stat-orders-count">0</div>
+        <div class="stat-label">Nowe zamówienia</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-res-count">0</div>
+        <div class="stat-label">Rezerwacje dziś</div>
+      </div>
+    </div>
+
+    <div class="section-title">Szybkie akcje</div>
+    <div class="card" style="display: flex; gap: 10px;">
+        <button class="btn-outline" onclick="switchTab('orders')"><i class="fas fa-clipboard-list"></i> Zamówienia</button>
+        <button class="btn-outline" onclick="switchTab('users')"><i class="fas fa-users"></i> Klienci</button>
+    </div>
+  </section>
+
+
+  <section id="view-orders" class="view-section">
+    <div class="section-title">Centrum Zamówień</div>
+    
+    <div class="tabs-container">
+        <div class="tab-btn active" onclick="switchOrderTab('pickup')" id="tab-pickup">Odbiór (<span id="pickup-count">0</span>)</div>
+        <div class="tab-btn" onclick="switchOrderTab('delivery')" id="tab-delivery">Dowóz (<span id="delivery-count">0</span>)</div>
+    </div>
+
+    <div id="orders-list-container">
+        </div>
+  </section>
+
+
+  <section id="view-reservations" class="view-section">
+    <div class="section-title">Rezerwacje Stolików</div>
+    <div id="reservations-list-container">
+         </div>
+  </section>
+
+
+  <section id="view-users" class="view-section">
+    <div class="section-title">Baza Klientów</div>
+    <div style="padding: 0 24px 15px;">
+        <input type="text" class="form-control" placeholder="Szukaj klienta (imię, email...)" id="user-search" onkeyup="filterUsers()">
+    </div>
+    <div class="card" style="padding: 0;" id="users-list-container">
+        </div>
+  </section>
+
+
+  <div class="modal-overlay" id="user-modal" onclick="closeModal('user-modal')">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
+          <h3 id="modal-user-name" style="font-size: 1.5rem;">Dane Klienta</h3>
+          <button class="icon-btn" onclick="closeModal('user-modal')" style="width: 32px; height: 32px;"><i class="fas fa-times"></i></button>
+      </div>
+      
+      <p id="modal-user-email" style="color: var(--text-sub); margin-bottom: 25px;">email@example.com</p>
+      
+      <div class="section-title" style="padding: 0; margin-bottom: 15px;">Zarządzaj Punktami Milkos</div>
+      <div class="card" style="margin: 0 0 20px 0; background: var(--bg-body);">
+        <div class="action-controls">
+            <button class="control-btn" onclick="adjustUserPoints(-100)"><i class="fas fa-minus"></i></button>
+            <div class="control-value" id="modal-user-points">1250</div>
+            <button class="control-btn" onclick="adjustUserPoints(100)"><i class="fas fa-plus"></i></button>
+        </div>
+        <button class="btn-main btn-small" style="width: 100%;" onclick="savePoints()">Zapisz punkty</button>
+      </div>
+
+      <div class="section-title" style="padding: 0; margin-bottom: 15px;">Wirtualny Portfel (Prepaid)</div>
+       <div class="card" style="margin: 0 0 20px 0; background: var(--bg-body);">
+        <div style="text-align: center; font-size: 1.8rem; font-weight: 800; margin-bottom: 15px;" id="modal-user-wallet">45.50 PLN</div>
+        <label style="font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; display: block;">Doładuj kwotą (PLN):</label>
+        <div style="display: flex; gap: 10px;">
+            <input type="number" class="form-control" id="wallet-topup-input" placeholder="np. 50.00" style="margin-bottom: 0;">
+            <button class="btn-main btn-small" style="flex-shrink: 0;" onclick="topUpWallet()">Doładuj</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <nav class="bottom-nav">
+    <a href="#" class="nav-item active" onclick="switchTab('dashboard', event)">
+      <i class="fas fa-chart-pie"></i> <span>Start</span>
+    </a>
+    <a href="#" class="nav-item" onclick="switchTab('orders', event)">
+      <i class="fas fa-clipboard-list"></i> <span>Zamówienia</span>
+    </a>
+    <a href="#" class="nav-item" onclick="switchTab('reservations', event)">
+      <i class="far fa-calendar-alt"></i> <span>Rezerwacje</span>
+    </a>
+    <a href="#" class="nav-item" onclick="switchTab('users', event)">
+      <i class="fas fa-users"></i> <span>Klienci</span>
+    </a>
+  </nav>
+
+</div>
+
+<div id="toast" class="toast">
+  <i class="fas fa-check-circle"></i>
+  <span id="toast-msg">Akcja wykonana</span>
+</div>
+
+<script>
+  // --- MOCK DATA (SIMULATING BACKEND DB) ---
+  let db_orders = [
+    { id: 'ORD-9921', type: 'pickup', customer: 'Jan Kowalski', items: '2x Oreo Shake, 1x Burger Vege', total: '67.00', status: 'pending', time: '14:30' },
+    { id: 'ORD-9922', type: 'delivery', customer: 'Anna Nowak', address: 'ul. Długa 5/12', items: '1x Pancake Tower', total: '24.00', status: 'pending', time: '14:35' },
+    { id: 'ORD-9923', type: 'pickup', customer: 'Marek Zegarek', items: '1x Espresso', total: '9.00', status: 'ready', time: '14:10' },
+    { id: 'ORD-9924', type: 'delivery', customer: 'Firma XYZ', address: 'ul. Biurowa 10', items: '5x Lunch Box', total: '150.00', status: 'delivering', time: '13:50' },
+  ];
+
+  let db_reservations = [
+    { id: 'RES-551', customer: 'Piotr Wiśniewski', date: 'Dziś, 18:00', people: 4, zone: 'Sala główna', status: 'pending', phone: '+48 555 666 777' },
+    { id: 'RES-552', customer: 'Maria Konopnicka', date: 'Dziś, 20:00', people: 2, zone: 'Sala frontowa', status: 'confirmed', phone: '+48 111 222 333' },
+    { id: 'RES-553', customer: 'Tomasz Karolak', date: 'Jutro, 13:00', people: 6, zone: 'Kącik dzieci', status: 'pending', phone: '+48 999 888 777' },
+  ];
+
+  let db_users = [
+    { id: 101, name: 'Mikołaj Kopernik', email: 'mikolaj@example.com', points: 1250, wallet: 45.50 },
+    { id: 102, name: 'Maria Skłodowska', email: 'maria@science.pl', points: 3400, wallet: 120.00 },
+    { id: 103, name: 'Lech Wałęsa', email: 'lech@gdansk.pl', points: 50, wallet: 0.00 },
+    { id: 104, name: 'Wisława Szymborska', email: 'wislawa@poezja.pl', points: 890, wallet: 15.00 },
+  ];
+
+  let currentOrderTab = 'pickup';
+  let selectedUserId = null;
+  let tempPoints = 0;
+
+  // --- INITIALIZATION ---
+  document.addEventListener('DOMContentLoaded', () => {
+    updateDashboardStats();
+    renderOrders();
+    renderReservations();
+    renderUsers();
+  });
+
+  // --- RENDER FUNCTIONS ---
+  function updateDashboardStats() {
+    const pendingOrders = db_orders.filter(o => o.status === 'pending').length;
+    const todayRes = db_reservations.filter(r => r.date.includes('Dziś')).length;
+    
+    document.getElementById('stat-orders-count').innerText = pendingOrders;
+    document.getElementById('stat-res-count').innerText = todayRes;
+    
+    // Update labels in Order tabs
+    document.getElementById('pickup-count').innerText = db_orders.filter(o => o.type === 'pickup' && o.status === 'pending').length;
+    document.getElementById('delivery-count').innerText = db_orders.filter(o => o.type === 'delivery' && o.status === 'pending').length;
+  }
+
+  function renderOrders() {
+    const container = document.getElementById('orders-list-container');
+    container.innerHTML = '';
+    
+    const filteredOrders = db_orders.filter(o => o.type === currentOrderTab);
+
+    if(filteredOrders.length === 0) {
+        container.innerHTML = '<div style="text-align:center; padding: 20px; color: var(--text-sub);">Brak zamówień w tej kategorii.</div>';
+        return;
+    }
+
+    filteredOrders.forEach(order => {
+      let statusBadge, actions;
+      
+      switch(order.status) {
+        case 'pending':
+            statusBadge = '<span class="item-status status-pending">Oczekuje</span>';
+            actions = `
+                <button class="btn-main btn-small btn-success" onclick="updateOrderStatus('${order.id}', '${currentOrderTab === 'pickup' ? 'ready' : 'preparing'}')">
+                    <i class="fas fa-check"></i> ${currentOrderTab === 'pickup' ? 'Do odbioru' : 'Przyjmij'}
+                </button>
+                <button class="btn-main btn-small btn-danger" onclick="updateOrderStatus('${order.id}', 'cancelled')"><i class="fas fa-times"></i></button>
+            `;
+            break;
+        case 'preparing':
+             statusBadge = '<span class="item-status status-ok" style="background: rgba(59, 130, 246, 0.15); color: #3B82F6;">W kuchni</span>';
+             actions = `<button class="btn-main btn-small" onclick="updateOrderStatus('${order.id}', 'delivering')"><i class="fas fa-motorcycle"></i> Wydaj dostawcy</button>`;
+             break;
+        case 'ready':
+            statusBadge = '<span class="item-status status-ok">Gotowe do odbioru</span>';
+            actions = `<button class="btn-main btn-small btn-success" onclick="updateOrderStatus('${order.id}', 'completed')"><i class="fas fa-hand-holding"></i> Odebrane</button>`;
+            break;
+        case 'delivering':
+             statusBadge = '<span class="item-status status-pending">W drodze</span>';
+             actions = `<button class="btn-main btn-small btn-success" onclick="updateOrderStatus('${order.id}', 'completed')"><i class="fas fa-flag-checkered"></i> Dostarczone</button>`;
+             break;
+        default:
+            statusBadge = '<span class="item-status" style="background:#eee; color:#999">Zakończone</span>';
+            actions = '';
+      }
+
+      const deliveryInfo = order.type === 'delivery' ? `<br><strong>Adres:</strong> ${order.address}` : '';
+
+      const html = `
+        <div class="admin-list-item">
+            <div class="item-header">
+                <div><span class="item-id">${order.id}</span> <span style="font-size:0.8rem; opacity:0.7; margin-left:10px;">g. ${order.time}</span></div>
+                ${statusBadge}
+            </div>
+            <div class="item-details">
+                <strong>Klient:</strong> ${order.customer}${deliveryInfo}
+                <br><strong>Zamówienie:</strong> ${order.items}
+                <br><strong style="color: var(--primary); font-size: 1.1rem;">Razem: ${order.total} PLN</strong>
+            </div>
+            <div class="item-actions">
+                ${actions}
+            </div>
+        </div>
+      `;
+      container.innerHTML += html;
+    });
+  }
+
+  function renderReservations() {
+      const container = document.getElementById('reservations-list-container');
+      container.innerHTML = '';
+
+      db_reservations.forEach(res => {
+          let statusBadge, actions;
+          if(res.status === 'pending') {
+              statusBadge = '<span class="item-status status-pending">Nowa</span>';
+              actions = `
+                <button class="btn-main btn-small btn-success" onclick="updateReservationStatus('${res.id}', 'confirmed')"><i class="fas fa-check"></i> Potwierdź</button>
+                <button class="btn-main btn-small btn-danger" onclick="updateReservationStatus('${res.id}', 'rejected')"><i class="fas fa-times"></i> Odrzuć</button>
+              `;
+          } else if (res.status === 'confirmed') {
+               statusBadge = '<span class="item-status status-ok">Potwierdzona</span>';
+               actions = '<button class="btn-outline btn-small" disabled>W oczekiwaniu na gości</button>';
+          } else {
+               statusBadge = '<span class="item-status status-danger">Odrzucona</span>';
+               actions = '';
+          }
+
+          const html = `
+            <div class="admin-list-item">
+                <div class="item-header">
+                    <span class="item-id">${res.id}</span>
+                    ${statusBadge}
+                </div>
+                <div class="item-details">
+                    <strong>Kto:</strong> ${res.customer} (<i class="fas fa-phone" style="font-size:0.8rem"></i> ${res.phone})
+                    <br><strong>Kiedy:</strong> ${res.date}
+                    <br><strong>Stolik:</strong> ${res.people} os. | ${res.zone}
+                </div>
+                <div class="item-actions">
+                    ${actions}
+                </div>
+            </div>
+          `;
+          container.innerHTML += html;
+      });
+  }
+
+  function renderUsers(filter = "") {
+      const container = document.getElementById('users-list-container');
+      container.innerHTML = '';
+      
+      const filteredUsers = db_users.filter(u => u.name.toLowerCase().includes(filter.toLowerCase()) || u.email.toLowerCase().includes(filter.toLowerCase()));
+
+      filteredUsers.forEach(user => {
+          const html = `
+            <div class="user-list-item" onclick="openUserModal(${user.id})">
+                <div class="user-info-box">
+                    <div class="user-avatar-small">${user.name.charAt(0)}</div>
+                    <div>
+                        <div style="font-weight: 700;">${user.name}</div>
+                        <div style="font-size: 0.8rem; color: var(--text-sub);">${user.email}</div>
+                    </div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-weight: 700; color: var(--primary);">${user.points} pkt</div>
+                    <div style="font-size: 0.8rem;">${user.wallet.toFixed(2)} PLN</div>
+                </div>
+            </div>
+          `;
+          container.innerHTML += html;
+      });
+  }
+
+  // --- LOGIC & ACTIONS ---
+  function switchTab(tabId, event) {
+    if(event) event.preventDefault();
+    document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+    document.getElementById('view-' + tabId).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+    window.scrollTo(0,0);
+  }
+
+  function switchOrderTab(type) {
+      currentOrderTab = type;
+      document.getElementById('tab-pickup').classList.toggle('active', type === 'pickup');
+      document.getElementById('tab-delivery').classList.toggle('active', type === 'delivery');
+      renderOrders();
+  }
+
+  function updateOrderStatus(id, newStatus) {
+      const order = db_orders.find(o => o.id === id);
+      if(order) {
+          order.status = newStatus;
+          showToast(`Status zamówienia ${id} zmieniony.`);
+          updateDashboardStats();
+          renderOrders();
+      }
+  }
+
+  function updateReservationStatus(id, newStatus) {
+      const res = db_reservations.find(r => r.id === id);
+      if(res) {
+          res.status = newStatus;
+          const msg = newStatus === 'confirmed' ? 'Rezerwacja potwierdzona' : 'Rezerwacja odrzucona';
+          showToast(msg, newStatus === 'confirmed' ? 'success' : 'danger');
+          updateDashboardStats();
+          renderReservations();
+      }
+  }
+
+  function filterUsers() {
+      const query = document.getElementById('user-search').value;
+      renderUsers(query);
+  }
+
+  // --- USER MODAL LOGIC ---
+  function openUserModal(userId) {
+      selectedUserId = userId;
+      const user = db_users.find(u => u.id === userId);
+      if(!user) return;
+
+      document.getElementById('modal-user-name').innerText = user.name;
+      document.getElementById('modal-user-email').innerText = user.email;
+      tempPoints = user.points;
+      document.getElementById('modal-user-points').innerText = tempPoints;
+      document.getElementById('modal-user-wallet').innerText = user.wallet.toFixed(2) + ' PLN';
+      document.getElementById('wallet-topup-input').value = '';
+
+      document.getElementById('user-modal').classList.add('open');
+  }
+
+  function adjustUserPoints(amount) {
+      tempPoints += amount;
+      if(tempPoints < 0) tempPoints = 0;
+      document.getElementById('modal-user-points').innerText = tempPoints;
+  }
+
+  function savePoints() {
+      const user = db_users.find(u => u.id === selectedUserId);
+      if(user) {
+          user.points = tempPoints;
+          showToast('Punkty użytkownika zaktualizowane.');
+          renderUsers();
+          // keep modal open
+      }
+  }
+
+  function topUpWallet() {
+      const amountInput = document.getElementById('wallet-topup-input');
+      const amount = parseFloat(amountInput.value);
+      if(isNaN(amount) || amount <= 0) {
+          showToast('Wpisz poprawną kwotę.', 'danger');
+          return;
+      }
+      const user = db_users.find(u => u.id === selectedUserId);
+      if(user) {
+          user.wallet += amount;
+          document.getElementById('modal-user-wallet').innerText = user.wallet.toFixed(2) + ' PLN';
+          amountInput.value = '';
+          showToast(`Doładowano portfel o ${amount.toFixed(2)} PLN.`);
+          renderUsers();
+      }
+  }
+
+
+  // --- UTILS ---
+  function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+  function toggleTheme() { document.body.classList.toggle('dark-mode'); }
+  function showToast(msg, type = 'success') {
+    const t = document.getElementById('toast');
+    const icon = t.querySelector('i');
+    t.style.borderColor = type === 'danger' ? 'var(--status-danger)' : 'var(--status-ok)';
+    icon.className = type === 'danger' ? 'fas fa-times-circle' : 'fas fa-check-circle';
+    icon.style.color = type === 'danger' ? 'var(--status-danger)' : 'var(--status-ok)';
+    
+    document.getElementById('toast-msg').innerText = msg;
+    t.classList.add('visible');
+    setTimeout(() => t.classList.remove('visible'), 2500);
+  }
+</script>
+</body>
+</html>
