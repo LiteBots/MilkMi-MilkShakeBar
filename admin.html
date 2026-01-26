@@ -1,578 +1,592 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>MilkMi Admin Panel</title>
-  
-  <meta name="theme-color" content="#FF6600">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-
-  <style>
-    /* --- CORE STYLES (Imported from Client App) --- */
-    :root {
-      --primary: #FF6600;
-      --primary-glow: rgba(255, 102, 0, 0.3);
-      --bg-body: #F2F4F6;
-      --bg-surface: #FFFFFF;
-      --text-main: #111827;
-      --text-sub: #6B7280;
-      --border: #E5E7EB;
-      --glass-bg: rgba(255, 255, 255, 0.90); /* Slightly less transparent for admin */
-      --glass-border: rgba(255, 255, 255, 0.5);
-      --radius-l: 24px;
-      --radius-m: 16px;
-      --nav-height: 85px;
-      --safe-top: env(safe-area-inset-top, 20px);
-
-      /* Admin specific colors */
-      --status-pending: #FFB020;
-      --status-ok: #10B981;
-      --status-danger: #EF4444;
-    }
-
-    body.dark-mode {
-      --bg-body: #0F0F0F;
-      --bg-surface: #1C1C1E;
-      --text-main: #FFFFFF;
-      --text-sub: #9CA3AF;
-      --border: #2D2D30;
-      --glass-bg: rgba(28, 28, 30, 0.90);
-      --glass-border: rgba(255, 255, 255, 0.1);
-      --primary-glow: rgba(255, 102, 0, 0.5);
-    }
-
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    body {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      color: var(--text-main); background-color: var(--bg-body);
-      overflow-x: hidden; padding-bottom: calc(var(--nav-height) + 30px); padding-top: var(--safe-top);
-      transition: background 0.3s, color 0.3s;
-    }
-
-    /* --- LAYOUT & HEADER --- */
-    .app-container { max-width: 600px; margin: 0 auto; min-height: 100vh; position: relative; } /* Slightly wider for admin panel */
-
-    .app-header {
-      padding: 15px 24px; display: flex; justify-content: space-between; align-items: center;
-      position: sticky; top: 0; z-index: 90; background: var(--bg-body); margin-top: 10px;
-    }
-    .brand { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px; }
-    .brand span { color: var(--primary); }
-    .admin-badge { background: var(--primary); color: white; padding: 4px 8px; border-radius: 6px; font-size: 0.7rem; vertical-align: middle; margin-left: 10px;}
-
-    .icon-btn {
-      width: 40px; height: 40px; border-radius: 50%; background: var(--bg-surface); border: 1px solid var(--border);
-      display: flex; align-items: center; justify-content: center; color: var(--text-main); font-size: 1rem; cursor: pointer; transition: 0.2s;
-    }
-    .icon-btn:active { transform: scale(0.9); }
-
-    /* --- UTILS & COMPONENTS --- */
-    .section-title { font-size: 1.1rem; font-weight: 700; margin: 24px 0 12px; padding: 0 24px; }
-    .card { background: var(--bg-surface); border-radius: var(--radius-l); padding: 20px; margin: 0 24px 16px; border: 1px solid var(--border); }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MilkMi HQ | Panel Zarządzania</title>
     
-    .btn-main { width: 100%; padding: 14px; border-radius: var(--radius-m); background: var(--primary); color: white; border: none; font-weight: 700; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;}
-    .btn-outline { width: 100%; padding: 14px; border-radius: var(--radius-m); background: transparent; color: var(--text-main); border: 1px solid var(--border); font-weight: 600; cursor: pointer; }
-    .btn-small { padding: 8px 16px; font-size: 0.85rem; width: auto; }
-    .btn-danger { background: var(--status-danger); }
-    .btn-success { background: var(--status-ok); }
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
-    .form-control {
-      width: 100%; padding: 14px; background: var(--bg-surface); 
-      border: 1px solid var(--border); border-radius: var(--radius-m); 
-      color: var(--text-main); font-family: inherit; font-size: 0.9rem; margin-bottom: 10px;
-    }
+    <style>
+        :root {
+            --primary: #FF6600;
+            --primary-dark: #cc5200;
+            --secondary: #1e293b;
+            --bg-body: #f1f5f9;
+            --bg-card: #ffffff;
+            --text-main: #0f172a;
+            --text-sub: #64748b;
+            --border: #e2e8f0;
+            
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
 
-    /* --- ADMIN SPECIFIC VIEWS --- */
-    .view-section { display: none; animation: fadeIn 0.3s ease; }
-    .view-section.active { display: block; }
+            --sidebar-width: 260px;
+            --header-height: 70px;
+            --radius: 12px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        }
 
-    /* Dashboard Stats */
-    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 0 24px; }
-    .stat-card { background: var(--bg-surface); padding: 20px; border-radius: var(--radius-m); border: 1px solid var(--border); }
-    .stat-value { font-size: 1.8rem; font-weight: 800; color: var(--primary); }
-    .stat-label { font-size: 0.85rem; color: var(--text-sub); font-weight: 600; }
+        * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
 
-    /* Admin List Items (Orders/Reservations/Users) */
-    .admin-list-item {
-        background: var(--bg-surface); border: 1px solid var(--border);
-        padding: 16px; border-radius: var(--radius-m); margin: 0 24px 12px;
-        display: flex; flex-direction: column; gap: 12px;
-    }
-    .item-header { display: flex; justify-content: space-between; align-items: center; }
-    .item-id { font-weight: 800; font-family: monospace; letter-spacing: 1px; }
-    .item-status { font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 20px; text-transform: uppercase;}
-    
-    .status-pending { background: rgba(255, 176, 32, 0.15); color: var(--status-pending); }
-    .status-ok { background: rgba(16, 185, 129, 0.15); color: var(--status-ok); }
-    .status-danger { background: rgba(239, 68, 68, 0.15); color: var(--status-danger); }
+        /* --- SIDEBAR --- */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--secondary);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            left: 0;
+            top: 0;
+            z-index: 100;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
-    .item-details { font-size: 0.9rem; color: var(--text-sub); line-height: 1.4; }
-    .item-details strong { color: var(--text-main); }
-    .item-actions { display: flex; gap: 10px; margin-top: 5px; }
+        .brand-box {
+            height: var(--header-height);
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 800;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .brand-box span { color: var(--primary); }
 
-    /* Tabs for Orders */
-    .tabs-container { padding: 0 24px; margin-bottom: 20px; display: flex; gap: 10px; }
-    .tab-btn { flex: 1; padding: 12px; text-align: center; background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-m); font-weight: 700; color: var(--text-sub); cursor: pointer; transition: 0.2s; }
-    .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .nav-links {
+            padding: 20px 16px;
+            flex: 1;
+        }
 
-    /* CRM User List */
-    .user-list-item { display: flex; align-items: center; justify-content: space-between; padding: 12px; border-bottom: 1px solid var(--border); cursor: pointer;}
-    .user-info-box { display: flex; align-items: center; gap: 12px; }
-    .user-avatar-small { width: 40px; height: 40px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: #94a3b8;
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 4px;
+            transition: all 0.2s;
+            font-weight: 500;
+            cursor: pointer;
+        }
 
-    /* --- BOTTOM NAV (Adapted for Admin) --- */
-    .bottom-nav {
-      position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
-      width: 100%; max-width: 600px; height: calc(var(--nav-height) + env(safe-area-inset-bottom, 0px));
-      background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-      border-top: 1px solid var(--glass-border);
-      display: flex; justify-content: space-around; align-items: center; /* Changed space-between to space-around */
-      padding: 0 10px calc(10px + env(safe-area-inset-bottom, 0px)) 20px; z-index: 1000;
-      border-radius: 24px 24px 0 0;
-    }
-    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 5px; color: var(--text-sub); text-decoration: none; font-size: 0.65rem; font-weight: 600; flex: 1; transition: color 0.2s; }
-    .nav-item.active { color: var(--primary); }
-    .nav-item i { font-size: 1.4rem; transition: transform 0.2s; }
-    .nav-item.active i { transform: translateY(-3px); }
+        .nav-item:hover { background: rgba(255,255,255,0.05); color: white; }
+        .nav-item.active { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(255, 102, 0, 0.3); }
+        .nav-item i { width: 20px; text-align: center; }
 
-    /* --- MODALS --- */
-    .modal-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px);
-      z-index: 2000; opacity: 0; pointer-events: none; display: flex; align-items: flex-end; transition: opacity 0.3s;
-    }
-    .modal-overlay.open { opacity: 1; pointer-events: auto; }
-    .modal-sheet {
-      width: 100%; max-width: 600px; margin: 0 auto; background: var(--bg-surface);
-      border-radius: 30px 30px 0 0; padding: 30px 24px calc(40px + env(safe-area-inset-bottom, 0px));
-      transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
-      max-height: 85vh; overflow-y: auto;
-    }
-    .modal-overlay.open .modal-sheet { transform: translateY(0); }
+        .sidebar-footer {
+            padding: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
 
-    /* --- ANIMATIONS & TOAST --- */
-    @keyframes fadeIn { from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
-    .toast {
-      position: fixed; top: calc(20px + var(--safe-top)); left: 50%; transform: translateX(-50%) translateY(-150px);
-      background: var(--bg-surface); color: var(--text-main); padding: 12px 20px; border-radius: 50px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 10px;
-      z-index: 3000; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      font-weight: 600; font-size: 0.9rem; border: 1px solid var(--border);
-    }
-    .toast.visible { transform: translateX(-50%) translateY(0); }
+        /* --- MAIN CONTENT --- */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            width: calc(100% - var(--sidebar-width));
+        }
 
-    /* Admin Action Controls */
-    .action-controls { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
-    .control-btn { width: 40px; height: 40px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-body); font-size: 1.2rem; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-    .control-value { font-size: 1.5rem; font-weight: 800; flex: 1; text-align: center; }
-  </style>
+        /* --- HEADER --- */
+        header {
+            height: var(--header-height);
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            position: sticky;
+            top: 0;
+            z-index: 90;
+        }
+
+        .header-title { font-size: 1.25rem; font-weight: 700; color: var(--text-main); }
+        .user-profile { display: flex; align-items: center; gap: 12px; }
+        .avatar { width: 36px; height: 36px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+
+        /* --- VIEWS --- */
+        .view-container { padding: 30px; opacity: 0; display: none; animation: fadeIn 0.4s forwards; }
+        .view-container.active { display: block; opacity: 1; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- DASHBOARD WIDGETS --- */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 24px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background: var(--bg-card);
+            padding: 24px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        .kpi-info h3 { font-size: 0.85rem; color: var(--text-sub); text-transform: uppercase; margin-bottom: 8px; font-weight: 600; letter-spacing: 0.5px; }
+        .kpi-info .value { font-size: 1.8rem; font-weight: 700; color: var(--text-main); }
+        .kpi-icon { width: 48px; height: 48px; background: rgba(255, 102, 0, 0.1); color: var(--primary); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; }
+
+        /* --- CHARTS SECTION --- */
+        .chart-row { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-bottom: 30px; }
+        .panel { background: var(--bg-card); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); overflow: hidden; }
+        .panel-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .panel-title { font-weight: 600; font-size: 1rem; }
+        .panel-body { padding: 24px; }
+
+        /* Fake CSS Chart */
+        .chart-container { display: flex; align-items: flex-end; justify-content: space-between; height: 200px; padding-top: 20px; }
+        .bar { width: 8%; background: var(--primary); border-radius: 4px 4px 0 0; position: relative; transition: height 1s ease; opacity: 0.8; }
+        .bar:hover { opacity: 1; transform: scaleY(1.05); transform-origin: bottom; }
+        .bar::after { content: attr(data-day); position: absolute; bottom: -25px; left: 50%; transform: translateX(-50%); font-size: 0.75rem; color: var(--text-sub); }
+
+        /* --- KANBAN BOARD (ORDERS) --- */
+        .kanban-board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; height: calc(100vh - 180px); overflow-x: auto; }
+        .kanban-col { background: #f8fafc; border-radius: 12px; border: 1px solid var(--border); display: flex; flex-direction: column; height: 100%; }
+        .kanban-header { padding: 16px; font-weight: 600; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .kanban-header .count { background: #e2e8f0; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; }
+        .kanban-header.new { border-top: 3px solid var(--warning); }
+        .kanban-header.prep { border-top: 3px solid var(--info); }
+        .kanban-header.ready { border-top: 3px solid var(--success); }
+        .kanban-header.done { border-top: 3px solid var(--text-sub); }
+        
+        .kanban-items { padding: 12px; overflow-y: auto; flex: 1; }
+        
+        .order-card { background: white; padding: 16px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 12px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; border: 1px solid transparent; }
+        .order-card:hover { transform: translateY(-2px); box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-color: var(--primary); }
+        .oc-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.8rem; color: var(--text-sub); }
+        .oc-id { font-weight: 700; font-family: monospace; color: var(--text-main); }
+        .oc-items { font-size: 0.9rem; font-weight: 600; margin-bottom: 8px; line-height: 1.4; }
+        .oc-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; padding-top: 12px; border-top: 1px solid #f1f5f9; }
+        .oc-price { font-weight: 700; color: var(--primary); }
+        .oc-type { font-size: 0.7rem; text-transform: uppercase; padding: 4px 8px; background: #f1f5f9; border-radius: 4px; font-weight: 600; }
+
+        /* --- DATA TABLES --- */
+        .table-container { width: 100%; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; white-space: nowrap; }
+        th { text-align: left; padding: 16px; background: #f8fafc; color: var(--text-sub); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; border-bottom: 1px solid var(--border); }
+        td { padding: 16px; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+        tr:hover td { background: #fdfdfd; }
+        
+        .status-badge { padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
+        .badge-success { background: rgba(16, 185, 129, 0.1); color: var(--success); }
+        .badge-warning { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
+        .badge-danger { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+        
+        .action-btn { background: none; border: none; cursor: pointer; color: var(--text-sub); padding: 6px; border-radius: 4px; transition: 0.2s; }
+        .action-btn:hover { background: #f1f5f9; color: var(--primary); }
+
+        /* --- MODAL DESKTOP --- */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+            z-index: 1000; display: none; align-items: center; justify-content: center;
+        }
+        .modal-overlay.open { display: flex; animation: fadeIn 0.2s; }
+        .modal-box {
+            background: var(--bg-card); width: 100%; max-width: 500px; border-radius: 16px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            padding: 30px; position: relative;
+        }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .modal-title { font-size: 1.25rem; font-weight: 700; }
+        
+        .btn { padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: 0.2s; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-main); }
+        .btn-outline:hover { background: #f8fafc; }
+        .btn-group { display: flex; gap: 10px; margin-top: 24px; justify-content: flex-end; }
+
+        /* --- MOBILE RESPONSIVE --- */
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.mobile-open { transform: translateX(0); }
+            .main-content { margin-left: 0; width: 100%; }
+            .kpi-grid { grid-template-columns: 1fr; }
+            .chart-row { grid-template-columns: 1fr; }
+            .kanban-board { grid-template-columns: 1fr; height: auto; overflow: visible; }
+            .kanban-col { margin-bottom: 20px; height: auto; min-height: 200px; }
+            .hamburger { display: block; }
+        }
+        @media (min-width: 769px) { .hamburger { display: none; } }
+    </style>
 </head>
 <body>
 
-<div class="app-container">
-
-  <header class="app-header">
-    <div class="brand">MilkMi <span class="admin-badge">ADMIN</span></div>
-    <button class="icon-btn" onclick="toggleTheme()"><i class="fas fa-moon"></i></button>
-  </header>
-
-  <section id="view-dashboard" class="view-section active">
-    <div style="padding: 10px 24px 20px;">
-      <h2 style="font-size: 1.8rem; line-height: 1.2;">Witaj, Admin! <br><span style="color:var(--text-sub); font-size: 1.1rem; font-weight:500;">Dzisiejsze statystyki:</span></h2>
-    </div>
-
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-value" id="stat-orders-count">0</div>
-        <div class="stat-label">Nowe zamówienia</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value" id="stat-res-count">0</div>
-        <div class="stat-label">Rezerwacje dziś</div>
-      </div>
-    </div>
-
-    <div class="section-title">Szybkie akcje</div>
-    <div class="card" style="display: flex; gap: 10px;">
-        <button class="btn-outline" onclick="switchTab('orders')"><i class="fas fa-clipboard-list"></i> Zamówienia</button>
-        <button class="btn-outline" onclick="switchTab('users')"><i class="fas fa-users"></i> Klienci</button>
-    </div>
-  </section>
-
-
-  <section id="view-orders" class="view-section">
-    <div class="section-title">Centrum Zamówień</div>
-    
-    <div class="tabs-container">
-        <div class="tab-btn active" onclick="switchOrderTab('pickup')" id="tab-pickup">Odbiór (<span id="pickup-count">0</span>)</div>
-        <div class="tab-btn" onclick="switchOrderTab('delivery')" id="tab-delivery">Dowóz (<span id="delivery-count">0</span>)</div>
-    </div>
-
-    <div id="orders-list-container">
+    <aside class="sidebar" id="sidebar">
+        <div class="brand-box">
+            MilkMi<span>.</span> <span style="font-size: 0.6em; background: rgba(255,255,255,0.2); padding: 2px 6px; border-radius: 4px; margin-left: 10px; color:white;">HQ</span>
         </div>
-  </section>
-
-
-  <section id="view-reservations" class="view-section">
-    <div class="section-title">Rezerwacje Stolików</div>
-    <div id="reservations-list-container">
-         </div>
-  </section>
-
-
-  <section id="view-users" class="view-section">
-    <div class="section-title">Baza Klientów</div>
-    <div style="padding: 0 24px 15px;">
-        <input type="text" class="form-control" placeholder="Szukaj klienta (imię, email...)" id="user-search" onkeyup="filterUsers()">
-    </div>
-    <div class="card" style="padding: 0;" id="users-list-container">
+        <nav class="nav-links">
+            <div class="nav-item active" onclick="switchView('dashboard', this)">
+                <i class="fas fa-chart-pie"></i> Dashboard
+            </div>
+            <div class="nav-item" onclick="switchView('kanban', this)">
+                <i class="fas fa-columns"></i> Zamówienia
+            </div>
+            <div class="nav-item" onclick="switchView('reservations', this)">
+                <i class="far fa-calendar-alt"></i> Rezerwacje
+            </div>
+            <div class="nav-item" onclick="switchView('customers', this)">
+                <i class="fas fa-users"></i> Klienci
+            </div>
+            <div class="nav-item" onclick="switchView('menu', this)">
+                <i class="fas fa-utensils"></i> Menu & Ceny
+            </div>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="nav-item" style="color: #ef4444;" onclick="alert('Wylogowano')">
+                <i class="fas fa-sign-out-alt"></i> Wyloguj
+            </div>
         </div>
-  </section>
+    </aside>
 
-
-  <div class="modal-overlay" id="user-modal" onclick="closeModal('user-modal')">
-    <div class="modal-sheet" onclick="event.stopPropagation()">
-      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
-          <h3 id="modal-user-name" style="font-size: 1.5rem;">Dane Klienta</h3>
-          <button class="icon-btn" onclick="closeModal('user-modal')" style="width: 32px; height: 32px;"><i class="fas fa-times"></i></button>
-      </div>
-      
-      <p id="modal-user-email" style="color: var(--text-sub); margin-bottom: 25px;">email@example.com</p>
-      
-      <div class="section-title" style="padding: 0; margin-bottom: 15px;">Zarządzaj Punktami Milkos</div>
-      <div class="card" style="margin: 0 0 20px 0; background: var(--bg-body);">
-        <div class="action-controls">
-            <button class="control-btn" onclick="adjustUserPoints(-100)"><i class="fas fa-minus"></i></button>
-            <div class="control-value" id="modal-user-points">1250</div>
-            <button class="control-btn" onclick="adjustUserPoints(100)"><i class="fas fa-plus"></i></button>
-        </div>
-        <button class="btn-main btn-small" style="width: 100%;" onclick="savePoints()">Zapisz punkty</button>
-      </div>
-
-      <div class="section-title" style="padding: 0; margin-bottom: 15px;">Wirtualny Portfel (Prepaid)</div>
-       <div class="card" style="margin: 0 0 20px 0; background: var(--bg-body);">
-        <div style="text-align: center; font-size: 1.8rem; font-weight: 800; margin-bottom: 15px;" id="modal-user-wallet">45.50 PLN</div>
-        <label style="font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; display: block;">Doładuj kwotą (PLN):</label>
-        <div style="display: flex; gap: 10px;">
-            <input type="number" class="form-control" id="wallet-topup-input" placeholder="np. 50.00" style="margin-bottom: 0;">
-            <button class="btn-main btn-small" style="flex-shrink: 0;" onclick="topUpWallet()">Doładuj</button>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-
-  <nav class="bottom-nav">
-    <a href="#" class="nav-item active" onclick="switchTab('dashboard', event)">
-      <i class="fas fa-chart-pie"></i> <span>Start</span>
-    </a>
-    <a href="#" class="nav-item" onclick="switchTab('orders', event)">
-      <i class="fas fa-clipboard-list"></i> <span>Zamówienia</span>
-    </a>
-    <a href="#" class="nav-item" onclick="switchTab('reservations', event)">
-      <i class="far fa-calendar-alt"></i> <span>Rezerwacje</span>
-    </a>
-    <a href="#" class="nav-item" onclick="switchTab('users', event)">
-      <i class="fas fa-users"></i> <span>Klienci</span>
-    </a>
-  </nav>
-
-</div>
-
-<div id="toast" class="toast">
-  <i class="fas fa-check-circle"></i>
-  <span id="toast-msg">Akcja wykonana</span>
-</div>
-
-<script>
-  // --- MOCK DATA (SIMULATING BACKEND DB) ---
-  let db_orders = [
-    { id: 'ORD-9921', type: 'pickup', customer: 'Jan Kowalski', items: '2x Oreo Shake, 1x Burger Vege', total: '67.00', status: 'pending', time: '14:30' },
-    { id: 'ORD-9922', type: 'delivery', customer: 'Anna Nowak', address: 'ul. Długa 5/12', items: '1x Pancake Tower', total: '24.00', status: 'pending', time: '14:35' },
-    { id: 'ORD-9923', type: 'pickup', customer: 'Marek Zegarek', items: '1x Espresso', total: '9.00', status: 'ready', time: '14:10' },
-    { id: 'ORD-9924', type: 'delivery', customer: 'Firma XYZ', address: 'ul. Biurowa 10', items: '5x Lunch Box', total: '150.00', status: 'delivering', time: '13:50' },
-  ];
-
-  let db_reservations = [
-    { id: 'RES-551', customer: 'Piotr Wiśniewski', date: 'Dziś, 18:00', people: 4, zone: 'Sala główna', status: 'pending', phone: '+48 555 666 777' },
-    { id: 'RES-552', customer: 'Maria Konopnicka', date: 'Dziś, 20:00', people: 2, zone: 'Sala frontowa', status: 'confirmed', phone: '+48 111 222 333' },
-    { id: 'RES-553', customer: 'Tomasz Karolak', date: 'Jutro, 13:00', people: 6, zone: 'Kącik dzieci', status: 'pending', phone: '+48 999 888 777' },
-  ];
-
-  let db_users = [
-    { id: 101, name: 'Mikołaj Kopernik', email: 'mikolaj@example.com', points: 1250, wallet: 45.50 },
-    { id: 102, name: 'Maria Skłodowska', email: 'maria@science.pl', points: 3400, wallet: 120.00 },
-    { id: 103, name: 'Lech Wałęsa', email: 'lech@gdansk.pl', points: 50, wallet: 0.00 },
-    { id: 104, name: 'Wisława Szymborska', email: 'wislawa@poezja.pl', points: 890, wallet: 15.00 },
-  ];
-
-  let currentOrderTab = 'pickup';
-  let selectedUserId = null;
-  let tempPoints = 0;
-
-  // --- INITIALIZATION ---
-  document.addEventListener('DOMContentLoaded', () => {
-    updateDashboardStats();
-    renderOrders();
-    renderReservations();
-    renderUsers();
-  });
-
-  // --- RENDER FUNCTIONS ---
-  function updateDashboardStats() {
-    const pendingOrders = db_orders.filter(o => o.status === 'pending').length;
-    const todayRes = db_reservations.filter(r => r.date.includes('Dziś')).length;
-    
-    document.getElementById('stat-orders-count').innerText = pendingOrders;
-    document.getElementById('stat-res-count').innerText = todayRes;
-    
-    // Update labels in Order tabs
-    document.getElementById('pickup-count').innerText = db_orders.filter(o => o.type === 'pickup' && o.status === 'pending').length;
-    document.getElementById('delivery-count').innerText = db_orders.filter(o => o.type === 'delivery' && o.status === 'pending').length;
-  }
-
-  function renderOrders() {
-    const container = document.getElementById('orders-list-container');
-    container.innerHTML = '';
-    
-    const filteredOrders = db_orders.filter(o => o.type === currentOrderTab);
-
-    if(filteredOrders.length === 0) {
-        container.innerHTML = '<div style="text-align:center; padding: 20px; color: var(--text-sub);">Brak zamówień w tej kategorii.</div>';
-        return;
-    }
-
-    filteredOrders.forEach(order => {
-      let statusBadge, actions;
-      
-      switch(order.status) {
-        case 'pending':
-            statusBadge = '<span class="item-status status-pending">Oczekuje</span>';
-            actions = `
-                <button class="btn-main btn-small btn-success" onclick="updateOrderStatus('${order.id}', '${currentOrderTab === 'pickup' ? 'ready' : 'preparing'}')">
-                    <i class="fas fa-check"></i> ${currentOrderTab === 'pickup' ? 'Do odbioru' : 'Przyjmij'}
+    <main class="main-content">
+        <header>
+            <div style="display:flex; align-items:center; gap:15px;">
+                <button class="hamburger icon-btn" style="background:none; border:none; font-size:1.2rem; cursor:pointer;" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
                 </button>
-                <button class="btn-main btn-small btn-danger" onclick="updateOrderStatus('${order.id}', 'cancelled')"><i class="fas fa-times"></i></button>
-            `;
-            break;
-        case 'preparing':
-             statusBadge = '<span class="item-status status-ok" style="background: rgba(59, 130, 246, 0.15); color: #3B82F6;">W kuchni</span>';
-             actions = `<button class="btn-main btn-small" onclick="updateOrderStatus('${order.id}', 'delivering')"><i class="fas fa-motorcycle"></i> Wydaj dostawcy</button>`;
-             break;
-        case 'ready':
-            statusBadge = '<span class="item-status status-ok">Gotowe do odbioru</span>';
-            actions = `<button class="btn-main btn-small btn-success" onclick="updateOrderStatus('${order.id}', 'completed')"><i class="fas fa-hand-holding"></i> Odebrane</button>`;
-            break;
-        case 'delivering':
-             statusBadge = '<span class="item-status status-pending">W drodze</span>';
-             actions = `<button class="btn-main btn-small btn-success" onclick="updateOrderStatus('${order.id}', 'completed')"><i class="fas fa-flag-checkered"></i> Dostarczone</button>`;
-             break;
-        default:
-            statusBadge = '<span class="item-status" style="background:#eee; color:#999">Zakończone</span>';
-            actions = '';
-      }
-
-      const deliveryInfo = order.type === 'delivery' ? `<br><strong>Adres:</strong> ${order.address}` : '';
-
-      const html = `
-        <div class="admin-list-item">
-            <div class="item-header">
-                <div><span class="item-id">${order.id}</span> <span style="font-size:0.8rem; opacity:0.7; margin-left:10px;">g. ${order.time}</span></div>
-                ${statusBadge}
+                <div class="header-title" id="page-title">Dashboard</div>
             </div>
-            <div class="item-details">
-                <strong>Klient:</strong> ${order.customer}${deliveryInfo}
-                <br><strong>Zamówienie:</strong> ${order.items}
-                <br><strong style="color: var(--primary); font-size: 1.1rem;">Razem: ${order.total} PLN</strong>
-            </div>
-            <div class="item-actions">
-                ${actions}
-            </div>
-        </div>
-      `;
-      container.innerHTML += html;
-    });
-  }
-
-  function renderReservations() {
-      const container = document.getElementById('reservations-list-container');
-      container.innerHTML = '';
-
-      db_reservations.forEach(res => {
-          let statusBadge, actions;
-          if(res.status === 'pending') {
-              statusBadge = '<span class="item-status status-pending">Nowa</span>';
-              actions = `
-                <button class="btn-main btn-small btn-success" onclick="updateReservationStatus('${res.id}', 'confirmed')"><i class="fas fa-check"></i> Potwierdź</button>
-                <button class="btn-main btn-small btn-danger" onclick="updateReservationStatus('${res.id}', 'rejected')"><i class="fas fa-times"></i> Odrzuć</button>
-              `;
-          } else if (res.status === 'confirmed') {
-               statusBadge = '<span class="item-status status-ok">Potwierdzona</span>';
-               actions = '<button class="btn-outline btn-small" disabled>W oczekiwaniu na gości</button>';
-          } else {
-               statusBadge = '<span class="item-status status-danger">Odrzucona</span>';
-               actions = '';
-          }
-
-          const html = `
-            <div class="admin-list-item">
-                <div class="item-header">
-                    <span class="item-id">${res.id}</span>
-                    ${statusBadge}
+            <div class="user-profile">
+                <div style="text-align:right; display:none; @media(min-width:768px){display:block;}">
+                    <div style="font-weight:600; font-size:0.9rem;">Admin Master</div>
+                    <div style="font-size:0.75rem; color:var(--text-sub);">Centrala Gdynia</div>
                 </div>
-                <div class="item-details">
-                    <strong>Kto:</strong> ${res.customer} (<i class="fas fa-phone" style="font-size:0.8rem"></i> ${res.phone})
-                    <br><strong>Kiedy:</strong> ${res.date}
-                    <br><strong>Stolik:</strong> ${res.people} os. | ${res.zone}
+                <div class="avatar">A</div>
+            </div>
+        </header>
+
+        <div id="view-dashboard" class="view-container active">
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-info">
+                        <h3>Dziś Sprzedaż</h3>
+                        <div class="value">2,450 zł</div>
+                        <div style="font-size:0.8rem; color:var(--success); margin-top:5px;">+12% vs wczoraj</div>
+                    </div>
+                    <div class="kpi-icon"><i class="fas fa-wallet"></i></div>
                 </div>
-                <div class="item-actions">
-                    ${actions}
+                <div class="kpi-card">
+                    <div class="kpi-info">
+                        <h3>Zamówienia</h3>
+                        <div class="value">48</div>
+                        <div style="font-size:0.8rem; color:var(--text-sub); margin-top:5px;">12 w realizacji</div>
+                    </div>
+                    <div class="kpi-icon"><i class="fas fa-shopping-bag"></i></div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-info">
+                        <h3>Rezerwacje</h3>
+                        <div class="value">6</div>
+                        <div style="font-size:0.8rem; color:var(--warning); margin-top:5px;">2 oczekują</div>
+                    </div>
+                    <div class="kpi-icon"><i class="fas fa-chair"></i></div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-info">
+                        <h3>Nowi Klienci</h3>
+                        <div class="value">+15</div>
+                        <div style="font-size:0.8rem; color:var(--success); margin-top:5px;">Program lojalnościowy</div>
+                    </div>
+                    <div class="kpi-icon"><i class="fas fa-user-plus"></i></div>
                 </div>
             </div>
-          `;
-          container.innerHTML += html;
-      });
-  }
 
-  function renderUsers(filter = "") {
-      const container = document.getElementById('users-list-container');
-      container.innerHTML = '';
-      
-      const filteredUsers = db_users.filter(u => u.name.toLowerCase().includes(filter.toLowerCase()) || u.email.toLowerCase().includes(filter.toLowerCase()));
-
-      filteredUsers.forEach(user => {
-          const html = `
-            <div class="user-list-item" onclick="openUserModal(${user.id})">
-                <div class="user-info-box">
-                    <div class="user-avatar-small">${user.name.charAt(0)}</div>
-                    <div>
-                        <div style="font-weight: 700;">${user.name}</div>
-                        <div style="font-size: 0.8rem; color: var(--text-sub);">${user.email}</div>
+            <div class="chart-row">
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-title">Przychód (Ostatnie 7 dni)</div>
+                        <select style="border:1px solid #ddd; padding:5px; border-radius:4px;"><option>Ten tydzień</option></select>
+                    </div>
+                    <div class="panel-body">
+                        <div class="chart-container">
+                            <div class="bar" style="height: 40%" data-day="Pon"></div>
+                            <div class="bar" style="height: 55%" data-day="Wt"></div>
+                            <div class="bar" style="height: 35%" data-day="Śr"></div>
+                            <div class="bar" style="height: 70%" data-day="Czw"></div>
+                            <div class="bar" style="height: 90%" data-day="Pt"></div>
+                            <div class="bar" style="height: 100%" data-day="Sob"></div>
+                            <div class="bar" style="height: 80%" data-day="Ndz"></div>
+                        </div>
                     </div>
                 </div>
-                <div style="text-align: right;">
-                    <div style="font-weight: 700; color: var(--primary);">${user.points} pkt</div>
-                    <div style="font-size: 0.8rem;">${user.wallet.toFixed(2)} PLN</div>
+                
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-title">Ostatnie akcje</div>
+                    </div>
+                    <div class="panel-body" style="padding:0;">
+                        <table style="width:100%;">
+                            <tbody>
+                                <tr>
+                                    <td style="padding:15px; border-bottom:1px solid #f1f5f9;">
+                                        <div style="font-weight:600;">Nowe zamówienie #9924</div>
+                                        <div style="font-size:0.8rem; color:var(--text-sub);">2 min temu</div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:15px; border-bottom:1px solid #f1f5f9;">
+                                        <div style="font-weight:600;">Rezerwacja potwierdzona</div>
+                                        <div style="font-size:0.8rem; color:var(--text-sub);">15 min temu</div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:15px; border-bottom:none;">
+                                        <div style="font-weight:600;">Nowy użytkownik: Anna</div>
+                                        <div style="font-size:0.8rem; color:var(--text-sub);">1 godz. temu</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-          `;
-          container.innerHTML += html;
-      });
-  }
+        </div>
 
-  // --- LOGIC & ACTIONS ---
-  function switchTab(tabId, event) {
-    if(event) event.preventDefault();
-    document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-    document.getElementById('view-' + tabId).classList.add('active');
-    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-    event.currentTarget.classList.add('active');
-    window.scrollTo(0,0);
-  }
+        <div id="view-kanban" class="view-container">
+            <div class="kanban-board" id="kanban-container">
+                </div>
+        </div>
 
-  function switchOrderTab(type) {
-      currentOrderTab = type;
-      document.getElementById('tab-pickup').classList.toggle('active', type === 'pickup');
-      document.getElementById('tab-delivery').classList.toggle('active', type === 'delivery');
-      renderOrders();
-  }
+        <div id="view-customers" class="view-container">
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title">Baza Klientów</div>
+                    <input type="text" placeholder="Szukaj klienta..." style="padding:8px 12px; border:1px solid var(--border); border-radius:6px; font-size:0.9rem;">
+                </div>
+                <div class="table-container">
+                    <table id="customers-table">
+                        <thead>
+                            <tr>
+                                <th>Klient</th>
+                                <th>Email</th>
+                                <th>Punkty</th>
+                                <th>Saldo Portfela</th>
+                                <th>Akcje</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
 
-  function updateOrderStatus(id, newStatus) {
-      const order = db_orders.find(o => o.id === id);
-      if(order) {
-          order.status = newStatus;
-          showToast(`Status zamówienia ${id} zmieniony.`);
-          updateDashboardStats();
-          renderOrders();
-      }
-  }
+        <div id="view-menu" class="view-container">
+            <div class="panel">
+                <div class="panel-header"><div class="panel-title">Zarządzanie Menu</div></div>
+                <div class="panel-body">
+                    <p>Tutaj pojawi się edytor produktów (ceny, zdjęcia, opisy).</p>
+                </div>
+            </div>
+        </div>
 
-  function updateReservationStatus(id, newStatus) {
-      const res = db_reservations.find(r => r.id === id);
-      if(res) {
-          res.status = newStatus;
-          const msg = newStatus === 'confirmed' ? 'Rezerwacja potwierdzona' : 'Rezerwacja odrzucona';
-          showToast(msg, newStatus === 'confirmed' ? 'success' : 'danger');
-          updateDashboardStats();
-          renderReservations();
-      }
-  }
+    </main>
 
-  function filterUsers() {
-      const query = document.getElementById('user-search').value;
-      renderUsers(query);
-  }
+    <div class="modal-overlay" id="order-modal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <div class="modal-title">Szczegóły Zamówienia <span style="color:var(--primary);" id="modal-order-id">#000</span></div>
+                <button onclick="closeModal('order-modal')" style="background:none; border:none; font-size:1.2rem; cursor:pointer;"><i class="fas fa-times"></i></button>
+            </div>
+            <div style="margin-bottom:20px;">
+                <p><strong>Klient:</strong> <span id="modal-order-client">...</span></p>
+                <p><strong>Adres/Typ:</strong> <span id="modal-order-address">...</span></p>
+            </div>
+            <div style="background:#f8fafc; padding:15px; border-radius:8px; margin-bottom:20px;" id="modal-order-items">
+                </div>
+            <div style="font-size:1.2rem; font-weight:800; text-align:right; margin-bottom:20px;" id="modal-order-total">
+                Total: 0.00 PLN
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-outline" onclick="moveOrder('prev')">Cofnij status</button>
+                <button class="btn btn-primary" onclick="moveOrder('next')">Awansuj status</button>
+            </div>
+        </div>
+    </div>
 
-  // --- USER MODAL LOGIC ---
-  function openUserModal(userId) {
-      selectedUserId = userId;
-      const user = db_users.find(u => u.id === userId);
-      if(!user) return;
+    <script>
+        // --- DATA ---
+        const orders = [
+            { id: '9921', client: 'Jan Kowalski', type: 'Odbiór', items: ['Oreo Shake x2', 'Burger Vege x1'], price: 67.00, status: 'new', time: '14:30' },
+            { id: '9922', client: 'Anna Nowak', type: 'Dostawa', address: 'ul. Morska 5', items: ['Pancake Tower x1'], price: 24.00, status: 'new', time: '14:35' },
+            { id: '9923', client: 'Marek Zegarek', type: 'Odbiór', items: ['Espresso x1'], price: 9.00, status: 'prep', time: '14:40' },
+            { id: '9924', client: 'Firma XYZ', type: 'Dostawa', address: 'Biuro Parkowa 10', items: ['Lunch Box x5'], price: 150.00, status: 'ready', time: '13:50' },
+            { id: '9920', client: 'Kasia N.', type: 'Odbiór', items: ['Berry Blast x1'], price: 18.50, status: 'done', time: '12:00' }
+        ];
 
-      document.getElementById('modal-user-name').innerText = user.name;
-      document.getElementById('modal-user-email').innerText = user.email;
-      tempPoints = user.points;
-      document.getElementById('modal-user-points').innerText = tempPoints;
-      document.getElementById('modal-user-wallet').innerText = user.wallet.toFixed(2) + ' PLN';
-      document.getElementById('wallet-topup-input').value = '';
+        const users = [
+            { id: 1, name: 'Mikołaj Kopernik', email: 'mikolaj@space.com', points: 1250, wallet: 45.50 },
+            { id: 2, name: 'Maria Curie', email: 'maria@lab.pl', points: 3400, wallet: 120.00 },
+            { id: 3, name: 'Fryderyk Chopin', email: 'piano@music.pl', points: 50, wallet: 0.00 },
+        ];
 
-      document.getElementById('user-modal').classList.add('open');
-  }
+        const statuses = {
+            'new': { label: 'Nowe', class: 'new' },
+            'prep': { label: 'W kuchni', class: 'prep' },
+            'ready': { label: 'Do wydania', class: 'ready' },
+            'done': { label: 'Zakończone', class: 'done' }
+        };
 
-  function adjustUserPoints(amount) {
-      tempPoints += amount;
-      if(tempPoints < 0) tempPoints = 0;
-      document.getElementById('modal-user-points').innerText = tempPoints;
-  }
+        let currentOrderId = null;
 
-  function savePoints() {
-      const user = db_users.find(u => u.id === selectedUserId);
-      if(user) {
-          user.points = tempPoints;
-          showToast('Punkty użytkownika zaktualizowane.');
-          renderUsers();
-          // keep modal open
-      }
-  }
+        // --- INIT ---
+        document.addEventListener('DOMContentLoaded', () => {
+            renderKanban();
+            renderUsers();
+        });
 
-  function topUpWallet() {
-      const amountInput = document.getElementById('wallet-topup-input');
-      const amount = parseFloat(amountInput.value);
-      if(isNaN(amount) || amount <= 0) {
-          showToast('Wpisz poprawną kwotę.', 'danger');
-          return;
-      }
-      const user = db_users.find(u => u.id === selectedUserId);
-      if(user) {
-          user.wallet += amount;
-          document.getElementById('modal-user-wallet').innerText = user.wallet.toFixed(2) + ' PLN';
-          amountInput.value = '';
-          showToast(`Doładowano portfel o ${amount.toFixed(2)} PLN.`);
-          renderUsers();
-      }
-  }
+        // --- NAVIGATION ---
+        function switchView(viewId, el) {
+            // Update Menu
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            if(el) el.classList.add('active');
+            
+            // Update View
+            document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active'));
+            document.getElementById('view-' + viewId).classList.add('active');
 
+            // Update Title
+            const titles = { 'dashboard': 'Dashboard', 'kanban': 'Centrum Zamówień', 'reservations': 'Rezerwacje', 'customers': 'Baza Klientów', 'menu': 'Edytor Menu' };
+            document.getElementById('page-title').innerText = titles[viewId];
 
-  // --- UTILS ---
-  function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-  function toggleTheme() { document.body.classList.toggle('dark-mode'); }
-  function showToast(msg, type = 'success') {
-    const t = document.getElementById('toast');
-    const icon = t.querySelector('i');
-    t.style.borderColor = type === 'danger' ? 'var(--status-danger)' : 'var(--status-ok)';
-    icon.className = type === 'danger' ? 'fas fa-times-circle' : 'fas fa-check-circle';
-    icon.style.color = type === 'danger' ? 'var(--status-danger)' : 'var(--status-ok)';
-    
-    document.getElementById('toast-msg').innerText = msg;
-    t.classList.add('visible');
-    setTimeout(() => t.classList.remove('visible'), 2500);
-  }
-</script>
+            // Close mobile sidebar if open
+            document.getElementById('sidebar').classList.remove('mobile-open');
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('mobile-open');
+        }
+
+        // --- KANBAN LOGIC ---
+        function renderKanban() {
+            const container = document.getElementById('kanban-container');
+            container.innerHTML = '';
+
+            Object.keys(statuses).forEach(key => {
+                const colOrders = orders.filter(o => o.status === key);
+                const statusInfo = statuses[key];
+                
+                let cardsHtml = '';
+                colOrders.forEach(o => {
+                    cardsHtml += `
+                        <div class="order-card" onclick="openOrderModal('${o.id}')">
+                            <div class="oc-header">
+                                <span class="oc-id">#${o.id}</span>
+                                <span>${o.time}</span>
+                            </div>
+                            <div class="oc-items">
+                                ${o.items.join(', ')}
+                            </div>
+                            <div class="oc-footer">
+                                <span class="oc-type">${o.type}</span>
+                                <span class="oc-price">${o.price.toFixed(2)} zł</span>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                const colHtml = `
+                    <div class="kanban-col">
+                        <div class="kanban-header ${statusInfo.class}">
+                            <span>${statusInfo.label}</span>
+                            <span class="count">${colOrders.length}</span>
+                        </div>
+                        <div class="kanban-items">
+                            ${cardsHtml}
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += colHtml;
+            });
+        }
+
+        // --- USERS TABLE LOGIC ---
+        function renderUsers() {
+            const tbody = document.querySelector('#customers-table tbody');
+            let html = '';
+            users.forEach(u => {
+                html += `
+                    <tr>
+                        <td>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <div class="avatar" style="width:30px; height:30px; font-size:0.8rem;">${u.name[0]}</div>
+                                <span style="font-weight:600;">${u.name}</span>
+                            </div>
+                        </td>
+                        <td>${u.email}</td>
+                        <td><span style="font-weight:700; color:var(--primary);">${u.points}</span> pkt</td>
+                        <td>${u.wallet.toFixed(2)} PLN</td>
+                        <td>
+                            <button class="action-btn" title="Edytuj"><i class="fas fa-edit"></i></button>
+                            <button class="action-btn" title="Historia"><i class="fas fa-history"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        }
+
+        // --- MODALS ---
+        function openOrderModal(id) {
+            const o = orders.find(x => x.id === id);
+            if(!o) return;
+            currentOrderId = id;
+
+            document.getElementById('modal-order-id').innerText = '#' + o.id;
+            document.getElementById('modal-order-client').innerText = o.client;
+            document.getElementById('modal-order-address').innerText = o.type + (o.address ? ` (${o.address})` : '');
+            
+            document.getElementById('modal-order-items').innerHTML = o.items.map(i => `<div>• ${i}</div>`).join('');
+            document.getElementById('modal-order-total').innerText = 'Total: ' + o.price.toFixed(2) + ' PLN';
+
+            document.getElementById('order-modal').classList.add('open');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('open');
+        }
+
+        function moveOrder(dir) {
+            const o = orders.find(x => x.id === currentOrderId);
+            const keys = Object.keys(statuses);
+            let idx = keys.indexOf(o.status);
+
+            if(dir === 'next' && idx < keys.length - 1) idx++;
+            if(dir === 'prev' && idx > 0) idx--;
+
+            o.status = keys[idx];
+            renderKanban();
+            closeModal('order-modal');
+        }
+
+    </script>
 </body>
 </html>
