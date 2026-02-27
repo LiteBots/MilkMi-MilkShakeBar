@@ -11,24 +11,48 @@ const io = new Server(server);
 
 const PORT = process.env.PORT || 3000;
 
-// Middleware do parsowania JSON z zapytań
+// Middleware do parsowania JSON z zapytań (potrzebne do logowania PIN-em)
 app.use(express.json());
 
-// Udostępnianie plików statycznych z folderu 'public'
+// Udostępnianie plików statycznych z folderu 'public' (CSS, obrazki itp.)
 app.use(express.static(path.join(__dirname, 'public')));
 
 // ==========================================
 // POŁĄCZENIE Z MONGODB (Railway)
 // ==========================================
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log('✅ Połączono z bazą MongoDB (Railway)'))
-  .catch(err => console.error('❌ Błąd połączenia z MongoDB:', err));
+// Upewnij się, że w pliku .env masz zmienną MONGO_URI
+if (process.env.MONGO_URI) {
+    mongoose.connect(process.env.MONGO_URI)
+      .then(() => console.log('✅ Połączono z bazą MongoDB'))
+      .catch(err => console.error('❌ Błąd połączenia z MongoDB:', err));
+} else {
+    console.warn('⚠️ Brak MONGO_URI w pliku .env. Baza danych nie jest podłączona.');
+}
+
+// ==========================================
+// ROUTING (Strony HTML)
+// ==========================================
+
+// Strona główna
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Aplikacja PWA
+app.get('/app', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'app.html'));
+});
+
+// Panel Administratora (Twój wymóg)
+app.get('/manage', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
 
 // ==========================================
 // ENDPOINTY API
 // ==========================================
 
-// Autoryzacja Admina (proste sprawdzanie PINu)
+// Autoryzacja Admina (sprawdzanie PINu)
 app.post('/api/admin/login', (req, res) => {
     const { pin } = req.body;
     
@@ -66,5 +90,8 @@ io.on('connection', (socket) => {
 // START SERWERA
 // ==========================================
 server.listen(PORT, () => {
-    console.log(`🚀 Serwer MilkMi działa pod adresem http://localhost:${PORT}`);
+    console.log(`🚀 Serwer działa!`);
+    console.log(`👉 Strona główna: http://localhost:${PORT}`);
+    console.log(`👉 Aplikacja PWA: http://localhost:${PORT}/app`);
+    console.log(`👉 Panel Admina:  http://localhost:${PORT}/manage`);
 });
