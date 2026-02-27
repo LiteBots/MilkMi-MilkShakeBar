@@ -9,6 +9,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
+// Railway podaje port w zmiennej środowiskowej process.env.PORT
 const PORT = process.env.PORT || 3000;
 
 // Middleware do parsowania JSON z zapytań (potrzebne do logowania PIN-em)
@@ -20,13 +21,13 @@ app.use(express.static(path.join(__dirname, 'public')));
 // ==========================================
 // POŁĄCZENIE Z MONGODB (Railway)
 // ==========================================
-// Upewnij się, że w pliku .env masz zmienną MONGO_URI
+// Upewnij się, że w zmiennych środowiskowych na Railway masz MONGO_URI
 if (process.env.MONGO_URI) {
     mongoose.connect(process.env.MONGO_URI)
       .then(() => console.log('✅ Połączono z bazą MongoDB'))
       .catch(err => console.error('❌ Błąd połączenia z MongoDB:', err));
 } else {
-    console.warn('⚠️ Brak MONGO_URI w pliku .env. Baza danych nie jest podłączona.');
+    console.warn('⚠️ Brak MONGO_URI. Baza danych nie jest podłączona.');
 }
 
 // ==========================================
@@ -43,7 +44,7 @@ app.get('/app', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'app.html'));
 });
 
-// Panel Administratora (Twój wymóg)
+// Panel Administratora
 app.get('/manage', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
@@ -87,11 +88,10 @@ io.on('connection', (socket) => {
 });
 
 // ==========================================
-// START SERWERA
+// START SERWERA (Gotowe na Railway)
 // ==========================================
-server.listen(PORT, () => {
-    console.log(`🚀 Serwer działa!`);
-    console.log(`👉 Strona główna: http://localhost:${PORT}`);
-    console.log(`👉 Aplikacja PWA: http://localhost:${PORT}/app`);
-    console.log(`👉 Panel Admina:  http://localhost:${PORT}/manage`);
+// Dodano '0.0.0.0' - wymagane przez większość chmur (w tym Railway) do poprawnego wystawienia portu
+server.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 Serwer działa na porcie ${PORT}!`);
+    console.log(`👉 Nasłuchiwanie na adresie 0.0.0.0 gotowe do ruchu publicznego.`);
 });
