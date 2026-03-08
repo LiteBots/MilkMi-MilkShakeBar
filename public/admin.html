@@ -280,6 +280,10 @@
     
     <div style="flex: 1"></div>
     <div class="nav-item" onclick="switchView('dev', this)" style="color: var(--primary);"><i class="fas fa-code"></i><span>Napisz do Developera</span></div>
+    
+    <div class="nav-item" onclick="logoutAdmin()" style="color: var(--status-err); margin-top: 10px; border-top: 1px solid var(--border); padding-top: 20px;">
+      <i class="fas fa-sign-out-alt"></i><span>Wyloguj</span>
+    </div>
   </aside>
 
   <main class="main-content">
@@ -692,6 +696,13 @@
     // --- THEME TOGGLE ---
     function toggleAdminTheme() {
       document.body.classList.toggle('dark-mode');
+    }
+
+    // --- LOGOUT LOGIC ---
+    function logoutAdmin() {
+      if (confirm("Czy na pewno chcesz się wylogować z panelu?")) {
+        window.location.reload(); 
+      }
     }
   </script>
 
