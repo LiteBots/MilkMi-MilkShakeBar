@@ -11,14 +11,14 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // --- POŁĄCZENIE Z MONGODB ---
-const MONGODB_URI = process.env.MONGODB_URI;
+const MONGO_URL = process.env.MONGO_URL;
 
-if (MONGODB_URI) {
-    mongoose.connect(MONGODB_URI)
+if (MONGO_URL) {
+    mongoose.connect(MONGO_URL)
         .then(() => console.log('Połączono z bazą MongoDB!'))
         .catch(err => console.error('Błąd połączenia z MongoDB:', err));
 } else {
-    console.warn('UWAGA: Brak zmiennej MONGODB_URI. Baza danych nie jest podłączona!');
+    console.warn('UWAGA: Brak zmiennej MONGO_URL. Baza danych nie jest podłączona!');
 }
 
 app.use(express.json());
