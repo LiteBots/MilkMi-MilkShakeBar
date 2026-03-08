@@ -1,14 +1,15 @@
 {
   "name": "milkmi2.0",
   "version": "1.0.0",
-  "description": "Aplikacja z plikami statycznymi i modelami",
+  "description": "web app",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js"
   },
   "dependencies": {
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "mongoose": "^8.2.1"
   },
   "engines": {
     "node": ">=18.0.0"
