@@ -189,6 +189,47 @@
     .theme-toggle { position: fixed; bottom: 30px; right: 30px; width: 50px; height: 50px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.1); z-index: 200; transition: 0.3s; }
     .theme-toggle:hover { transform: scale(1.1); }
 
+    /* --- TOAST NOTIFICATIONS --- */
+    #toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 999999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none;
+    }
+
+    .toast {
+      min-width: 280px;
+      padding: 16px 20px;
+      border-radius: var(--radius-m);
+      color: white;
+      font-weight: 600;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+      animation: slideInRight 0.3s ease-out forwards;
+      opacity: 0;
+      transform: translateX(100%);
+    }
+
+    .toast i { font-size: 1.2rem; }
+    .toast.success { background: var(--status-ok); }
+    .toast.error { background: var(--status-err); }
+    .toast.info { background: var(--status-info); }
+    .toast.fade-out { animation: fadeOutRight 0.3s ease-in forwards; }
+
+    @keyframes slideInRight {
+      to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes fadeOutRight {
+      to { opacity: 0; transform: translateX(100%); }
+    }
+
     @keyframes fadeIn { from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
     @keyframes pulseGreen { 0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); } 70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); } 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); } }
     @keyframes pulseRed { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
@@ -236,6 +277,13 @@
             overlay.style.opacity = '0';
             overlay.style.transition = 'opacity 0.5s ease';
             setTimeout(() => overlay.remove(), 500);
+            
+            // Opcjonalnie: powitanie zalogowanego użytkownika
+            if (data.name) {
+                setTimeout(() => showToast(`Witaj, ${data.name}!`, 'info'), 500);
+            } else {
+                setTimeout(() => showToast('Zalogowano pomyślnie!', 'success'), 500);
+            }
         } else {
             // PIN błędny
             errorMsg.innerText = "Nieprawidłowy kod PIN!";
@@ -452,7 +500,7 @@
           <label>Treść</label>
           <textarea class="form-control" rows="4"></textarea>
         </div>
-        <button class="btn btn-primary" onclick="alert('Wysłano!')"><i class="fas fa-paper-plane"></i> Wyślij PUSH</button>
+        <button class="btn btn-primary" onclick="showToast('Powiadomienie PUSH zostało wysłane!', 'success')"><i class="fas fa-paper-plane"></i> Wyślij PUSH</button>
       </div>
     </section>
 
@@ -460,7 +508,7 @@
       <div class="card">
         <div class="section-header">Baner w Aplikacji</div>
         <div class="form-group"><label>Tytuł</label><input type="text" class="form-control" value="Eatmi - Zamów z dowozem"></div>
-        <button class="btn btn-primary">Zapisz zmiany</button>
+        <button class="btn btn-primary" onclick="showToast('Zmiany w banerze zostały zapisane', 'success')">Zapisz zmiany</button>
       </div>
     </section>
 
@@ -468,7 +516,7 @@
       <div class="card">
         <div class="section-header">Pasek na stronie WWW</div>
         <div class="form-group"><label>Treść</label><input type="text" class="form-control" value="Dziś darmowa dostawa!"></div>
-        <button class="btn btn-primary">Aktualizuj</button>
+        <button class="btn btn-primary" onclick="showToast('Pasek zaktualizowany', 'success')">Aktualizuj</button>
       </div>
     </section>
 
@@ -660,7 +708,7 @@
           <label>Wiadomość</label>
           <textarea class="form-control" rows="5"></textarea>
         </div>
-        <button class="btn btn-primary" style="width:100%; justify-content:center;">Wyślij zgłoszenie</button>
+        <button class="btn btn-primary" style="width:100%; justify-content:center;" onclick="showToast('Wiadomość została wysłana do developera', 'info')">Wyślij zgłoszenie</button>
       </div>
     </section>
 
@@ -671,6 +719,31 @@
   </button>
 
   <script>
+    // --- TOAST NOTIFICATIONS LOGIC ---
+    function showToast(message, type = 'success') {
+      let container = document.getElementById('toast-container');
+      if (!container) {
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        document.body.appendChild(container);
+      }
+
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      
+      let icon = 'fa-check-circle';
+      if (type === 'error') icon = 'fa-exclamation-circle';
+      if (type === 'info') icon = 'fa-info-circle';
+
+      toast.innerHTML = `<i class="fas ${icon}"></i> <span>${message}</span>`;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.classList.add('fade-out');
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
     // --- LIVE CLOCK ---
     function updateClock() {
       const now = new Date();
@@ -684,17 +757,12 @@
 
     // --- NAVIGATION LOGIC ---
     function switchView(viewId, navElement) {
-      // 1. Hide all sections
       document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-      
-      // 2. Show target section
       document.getElementById('view-' + viewId).classList.add('active');
       
-      // 3. Update Sidebar Active State
       document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
       if(navElement) navElement.classList.add('active');
 
-      // 4. Update Header Title
       const titles = {
         'dashboard': 'Dashboard',
         'points': 'Punkty (Milkosy)',
@@ -730,7 +798,6 @@
     }
 
     // --- WORKMI TEAM LOGIC ---
-    // Pobieranie zespołu z bazy
     async function fetchTeam() {
       try {
         const response = await fetch('/api/team');
@@ -738,10 +805,9 @@
         
         if (result.success) {
           const tbody = document.getElementById('team-table-body');
-          tbody.innerHTML = ''; // Czyścimy tabelę
+          tbody.innerHTML = ''; 
           
           result.data.forEach(emp => {
-            // Kolorujemy badge w zależności od stanowiska
             let badgeColor = 'blue';
             if(emp.role === 'Właściciel' || emp.role === 'Manager') badgeColor = 'green';
             if(emp.role === 'Szef Kuchni') badgeColor = 'orange';
@@ -757,12 +823,12 @@
         }
       } catch (err) {
         console.error('Błąd pobierania zespołu', err);
+        showToast('Nie udało się pobrać listy pracowników', 'error');
       }
     }
 
-    // Zapis nowego pracownika
     async function addEmployee(event) {
-      event.preventDefault(); // Zatrzymuje standardowe przeładowanie formularza
+      event.preventDefault(); 
       
       const name = document.getElementById('emp-name').value;
       const role = document.getElementById('emp-role').value;
@@ -778,19 +844,18 @@
         const result = await response.json();
         
         if (result.success) {
-          alert('Pracownik został dodany do bazy!');
-          document.getElementById('add-employee-form').reset(); // Czyścimy pola formularza
-          fetchTeam(); // Odświeżamy listę pod spodem
+          showToast('Pracownik został dodany do bazy!', 'success');
+          document.getElementById('add-employee-form').reset(); 
+          fetchTeam(); 
         } else {
-          alert('Błąd: ' + result.error);
+          showToast('Błąd: ' + result.error, 'error');
         }
       } catch (err) {
         console.error('Błąd dodawania pracownika', err);
-        alert('Nie udało się połączyć z serwerem.');
+        showToast('Nie udało się połączyć z serwerem.', 'error');
       }
     }
 
-    // Odpal pobieranie zespołu gdy tylko strona się załaduje
     document.addEventListener('DOMContentLoaded', fetchTeam);
   </script>
 
