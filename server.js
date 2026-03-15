@@ -29,19 +29,37 @@ app.use(express.static(path.join(__dirname, 'public'), {
 }));
 
 // --- LOGIKA LOGOWANIA DO PANELU ADMINA ---
-app.post('/api/admin/login', (req, res) => {
+app.post('/api/admin/login', async (req, res) => {
     const { pin } = req.body;
     const adminPin = process.env.ADMIN1_PIN;
 
-    if (!adminPin) {
-        console.error("UWAGA: Brak zmiennej ADMIN1_PIN w konfiguracji serwera!");
-        return res.json({ success: false });
+    // 1. Sprawdzenie "Master PIN" z konfiguracji serwera (główny administrator)
+    if (adminPin && pin === adminPin) {
+        return res.json({ 
+            success: true, 
+            message: 'Zalogowano jako Główny Administrator' 
+        });
     }
 
-    if (pin === adminPin) {
-        res.json({ success: true });
-    } else {
-        res.json({ success: false });
+    try {
+        // 2. Jeśli to nie Master PIN, szukamy pracownika w bazie danych MongoDB
+        const employee = await Employee.findOne({ pin: pin });
+
+        if (employee) {
+            // Sukces - znaleziono pracownika z tym kodem PIN
+            return res.json({ 
+                success: true, 
+                message: `Zalogowano pomyślnie: ${employee.name}`,
+                role: employee.role,
+                name: employee.name
+            });
+        } else {
+            // Błąd - PIN nie pasuje ani do admina, ani do żadnego pracownika
+            return res.json({ success: false, error: 'Błędny kod PIN!' });
+        }
+    } catch (error) {
+        console.error('Błąd podczas weryfikacji logowania w bazie:', error);
+        return res.status(500).json({ success: false, error: 'Błąd serwera podczas logowania.' });
     }
 });
 
