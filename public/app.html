@@ -93,23 +93,32 @@
     }
     .loader-logo span { color: var(--primary); }
 
-    .loader-spinner {
-      width: 50px;
-      height: 50px;
-      border: 3px solid rgba(255, 255, 255, 0.1);
-      border-top: 3px solid var(--primary);
-      border-radius: 50%;
-      margin: 0 auto;
-      animation: spin 1s linear infinite;
+    /* --- COUNTDOWN & DEV DOT --- */
+    .countdown-container {
+      display: flex; justify-content: center; gap: 10px; margin: 25px 0;
     }
-
-    .loader-text {
-      color: rgba(255, 255, 255, 0.5);
-      font-size: 0.8rem;
-      font-weight: 600;
-      margin-top: 20px;
-      text-transform: uppercase;
-      letter-spacing: 2px;
+    .cd-box {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--radius-m);
+      padding: 12px 10px; min-width: 65px; text-align: center;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+    .cd-box span {
+      display: block; font-size: 1.6rem; font-weight: 800; color: var(--primary);
+    }
+    .cd-box .cd-label {
+      font-size: 0.65rem; color: rgba(255, 255, 255, 0.5); text-transform: uppercase;
+      margin-top: 4px; letter-spacing: 1px; font-weight: 600;
+    }
+    
+    .dev-dot {
+      position: absolute; bottom: 15px; left: 15px;
+      color: rgba(255, 255, 255, 0.15); /* Bardzo słabo widoczna kropka */
+      font-size: 24px; cursor: pointer; width: 40px; height: 40px;
+      display: flex; align-items: flex-end; justify-content: flex-start;
+      user-select: none; -webkit-tap-highlight-color: transparent;
+      z-index: 10000;
     }
 
     /* --- LAYOUT --- */
@@ -472,11 +481,29 @@
 <body>
 
 <div id="splash-screen">
-  <div class="loader-content">
+  <div class="loader-content" style="max-width: 85%; margin: 0 auto;">
     <div class="loader-logo">MilkMi<span>.</span></div>
-    <div class="loader-spinner"></div>
-    <div class="loader-text">Wczytywanie doznań</div>
+    
+    <h2 style="color: white; margin-bottom: 15px; font-size: 1.4rem;">Witaj w MilkMi!</h2>
+    
+    <p style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem; margin-bottom: 25px; line-height: 1.5;">
+      MilkMi to nowa aplikacja lojalnościowa dla klientów Milkshakebar. Aktualnie trwa przerwa techniczna, która potrwa do <strong>6 kwietnia 2026</strong>.
+    </p>
+
+    <div class="countdown-container">
+      <div class="cd-box"><span id="cd-days">00</span><div class="cd-label">Dni</div></div>
+      <div class="cd-box"><span id="cd-hours">00</span><div class="cd-label">Godz</div></div>
+      <div class="cd-box"><span id="cd-mins">00</span><div class="cd-label">Min</div></div>
+      <div class="cd-box"><span id="cd-secs">00</span><div class="cd-label">Sek</div></div>
+    </div>
+
+    <p style="color: rgba(255, 255, 255, 0.6); font-size: 0.8rem; margin-top: 30px; line-height: 1.4; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 12px; border: 1px dashed rgba(255,255,255,0.2);">
+      <i class="fas fa-info-circle" style="color: var(--primary); margin-bottom: 8px; font-size: 1.2rem;"></i><br>
+      Po zakończeniu przerwy technicznej Twoje punkty i inne informacje zostaną na Twoim koncie. Do zobaczenia wkrótce!
+    </p>
   </div>
+  
+  <div class="dev-dot" onclick="devLogin()">.</div>
 </div>
 
 <div class="app-container" id="main-app">
@@ -1008,29 +1035,67 @@
   let selectedZone = 'Sala frontowa';
   let selectedGiftAmount = 100;
   let currentLocation = "Słupsk, Szczecińska 17";
+  let countdownInterval;
 
-  // --- INIT & LOADER LOGIC ---
+  // --- INIT & MAINTENANCE LOGIC ---
   document.addEventListener('DOMContentLoaded', () => {
-    // 3-sekundowy loader
-    setTimeout(() => {
-        const splash = document.getElementById('splash-screen');
-        const main = document.getElementById('main-app');
-          
-        splash.style.opacity = '0';
-        splash.style.visibility = 'hidden';
-        main.style.opacity = '1';
-        document.body.style.overflow = 'auto'; 
-          
-        setTimeout(() => {
-            const fill = document.querySelector('.loyalty-progress-fill');
-            if(fill) fill.style.width = '83%';
-        }, 500);
-    }, 3000);
+    
+    const targetDate = new Date("April 6, 2026 00:00:00").getTime();
 
+    countdownInterval = setInterval(() => {
+      const now = new Date().getTime();
+      const distance = targetDate - now;
+
+      // Gdy czas naturalnie minie
+      if (distance < 0) {
+        clearInterval(countdownInterval);
+        unlockApp();
+        return;
+      }
+
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      document.getElementById("cd-days").innerText = days.toString().padStart(2, '0');
+      document.getElementById("cd-hours").innerText = hours.toString().padStart(2, '0');
+      document.getElementById("cd-mins").innerText = minutes.toString().padStart(2, '0');
+      document.getElementById("cd-secs").innerText = seconds.toString().padStart(2, '0');
+    }, 1000);
+
+    // Animacja paska
+    setTimeout(() => {
+        const fill = document.querySelector('.loyalty-progress-fill');
+        if(fill) fill.style.width = '83%';
+    }, 500);
+
+    // Renderujemy interfejs w tle, żeby był gotowy
     renderActivities();
     renderMenu();
     renderRewards();
   });
+
+  function unlockApp() {
+    const splash = document.getElementById('splash-screen');
+    const main = document.getElementById('main-app');
+    
+    splash.style.opacity = '0';
+    setTimeout(() => splash.style.visibility = 'hidden', 800);
+    main.style.opacity = '1';
+    document.body.style.overflow = 'auto'; 
+  }
+
+  function devLogin() {
+    const pin = prompt("Podaj kod dostępu do trybu dewelopera:");
+    if(pin === "33201") {
+      clearInterval(countdownInterval);
+      unlockApp();
+      showToast("Tryb dewelopera aktywowany", true);
+    } else if (pin !== null) {
+      alert("Nieprawidłowy kod PIN.");
+    }
+  }
 
   // --- RENDERING ---
   function renderActivities() {
@@ -1166,84 +1231,4 @@
   }
 
   function selectAmount(el, val) {
-    document.querySelectorAll('.amount-chip').forEach(x => x.classList.remove('selected'));
-    el.classList.add('selected');
-    selectedGiftAmount = val;
-  }
-
-  function processPayment(msg) {
-    showToast("Przekierowanie do płatności...");
-    setTimeout(() => {
-        closeModal('topup-modal');
-        closeModal('gift-modal');
-        showToast(msg);
-    }, 2000);
-  }
-
-  function openProduct(id) {
-    const p = products.find(x => x.id === id);
-    const content = document.getElementById('product-detail-content');
-      
-    content.innerHTML = `
-      <div style="text-align:center; margin-bottom: 20px;">
-        <img src="${p.img}" style="width:140px; height:140px; object-fit:cover; border-radius:20px; box-shadow: 0 10px 20px rgba(0,0,0,0.1);">
-      </div>
-      <h2 style="font-size: 1.5rem; margin-bottom: 5px;">${p.name}</h2>
-      <p style="color: var(--text-sub); margin-bottom: 15px;">${p.desc}</p>
-        
-      <div style="display:flex; gap:10px; margin-bottom: 25px; flex-wrap: wrap; justify-content: center;">
-        <span style="background:var(--bg-body); padding:5px 10px; border-radius:8px; font-size:0.8rem;">🔥 ${p.cal} kcal</span>
-        <span style="background:var(--bg-body); padding:5px 10px; border-radius:8px; font-size:0.8rem;">🌱 Wegetariańskie</span>
-      </div>
-
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px;">
-        <div style="font-size: 1.4rem; font-weight:700;">${p.price.toFixed(2)} zł</div>
-        <button class="btn-main" style="width: auto; padding: 12px 30px;" onclick="addToCart(${p.id})">
-          Dodaj do koszyka
-        </button>
-      </div>
-    `;
-      
-    openModal('product-modal');
-  }
-
-  function addToCart(id) {
-    cart.push(id);
-    const badge = document.getElementById('cart-badge');
-    badge.innerText = cart.length;
-    badge.style.display = 'flex';
-      
-    closeModal('product-modal');
-    showToast('Dodano do koszyka!');
-  }
-
-  function showCart() {
-    if(cart.length === 0) showToast('Twój koszyk jest pusty', false);
-    else showToast(`Masz ${cart.length} produktów w koszyku`);
-  }
-
-  function selectZone(el, zoneName) {
-    document.querySelectorAll('.table-select').forEach(x => x.classList.remove('selected'));
-    el.classList.add('selected');
-    selectedZone = zoneName;
-  }
-
-  function submitReservation() {
-    showToast('Rezerwacja wysłana! 📅');
-    setTimeout(() => switchTab('home'), 1500);
-  }
-
-  function toggleTheme() {
-    document.body.classList.toggle('dark-mode');
-  }
-
-  function showToast(msg, success = true) {
-    const t = document.getElementById('toast');
-    document.getElementById('toast-msg').innerText = msg;
-    t.classList.add('visible');
-    setTimeout(() => t.classList.remove('visible'), 2500);
-  }
-
-</script>
-</body>
-</html>
+    document.querySelectorAll('.amount-chip').forEach(x => x.classList
